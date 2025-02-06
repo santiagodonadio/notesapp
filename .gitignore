@@ -25,3 +25,8 @@ dist-ssr
 Library/
 .Trash/
 .DS_Store
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*

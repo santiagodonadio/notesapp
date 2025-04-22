@@ -1,6 +1,8 @@
+// src/App.jsx
 import { useState, useEffect } from "react";
-import { supabase } from "./supabaseClient";
+import supabase from "./supabaseClient"; // Default import
 import "./App.css";
+
 
 function App() {
   const [tasks, setTasks] = useState([]);

@@ -1,33 +1,52 @@
-import { useState } from "react";
-import "./App.css"
+import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
+import "./App.css";
 
-function App(){
-
+function App() {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
 
+  // 🧠 Load tasks from Supabase on page load
+  useEffect(() => {
+    loadNotes();
+  }, []);
+
+  const loadNotes = async () => {
+    const { data, error } = await supabase
+      .from("notes")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error loading notes:", error.message);
+    } else {
+      setTasks(data); // Each task is { id, content, created_at }
+    }
+  };
+
+  // 📝 This version just updates local state for now (we'll update it next!)
   const addTask = () => {
-    if (input.trim() !== ""){
-      setTasks([...tasks, input]);
+    if (input.trim() !== "") {
+      setTasks([...tasks, { id: Date.now(), content: input }]); // temporary ID
       setInput("");
     }
   };
 
-  const removeTask = (index) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
+  // ❌ This version just updates local state (we’ll upgrade it to delete from Supabase)
+  const removeTask = (id) => {
+    const newTasks = tasks.filter((task) => task.id !== id);
     setTasks(newTasks);
   };
 
   return (
-
     <div className="App">
-
       <h1>Santiago's To-Do List</h1>
+
       <input
         value={input}
-        onChange={(e) => setInput(e.target.value)} 
+        onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter"){
+          if (e.key === "Enter") {
             addTask();
           }
         }}
@@ -37,30 +56,15 @@ function App(){
       <button onClick={addTask}>Add</button>
 
       <ul>
-
-        {tasks.map((task, index) => (
-            <li key={index}>
-              {task}{" "}
-              <button onClick={() => removeTask(index)}>X</button>
-            </li>
-
-
+        {tasks.map((task) => (
+          <li key={task.id}>
+            {task.content}{" "}
+            <button onClick={() => removeTask(task.id)}>❌</button>
+          </li>
         ))}
-
-
       </ul>
-
-
-
-
-
     </div>
-
-
-
   );
-
-    
 }
 
 export default App;
